@@ -1,8 +1,8 @@
 package gg.amy.catnip.utilities.typesafeCommands.parse;
 
 import com.mewna.catnip.entity.message.Message;
-import gg.amy.zoe.ext.command.CommandExtension;
-import gg.amy.zoe.ext.command.CommandExtension.CommandContainer;
+import gg.amy.catnip.utilities.typesafeCommands.TypesafeCommandExtension;
+import gg.amy.catnip.utilities.typesafeCommands.TypesafeCommandExtension.CommandContainer;
 
 import java.util.Map;
 
@@ -11,5 +11,5 @@ import java.util.Map;
  * @since 10/8/18.
  */
 public interface ArgParser {
-    Map<String, Object> parse(CommandExtension extension, CommandContainer cmd, Message ctx, String argstr);
+    Map<String, Object> parse(TypesafeCommandExtension extension, CommandContainer cmd, Message ctx, String argstr);
 }

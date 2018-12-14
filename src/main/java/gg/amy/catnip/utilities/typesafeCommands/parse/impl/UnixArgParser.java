@@ -2,11 +2,11 @@ package gg.amy.catnip.utilities.typesafeCommands.parse.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.mewna.catnip.entity.message.Message;
-import gg.amy.zoe.ext.command.CommandExtension;
-import gg.amy.zoe.ext.command.CommandExtension.CommandContainer;
-import gg.amy.zoe.ext.command.CommandExtension.ParamTypeInfo;
-import gg.amy.zoe.ext.command.parse.ArgParser;
-import gg.amy.zoe.ext.command.types.TypeConverter;
+import gg.amy.catnip.utilities.typesafeCommands.TypesafeCommandExtension;
+import gg.amy.catnip.utilities.typesafeCommands.TypesafeCommandExtension.CommandContainer;
+import gg.amy.catnip.utilities.typesafeCommands.TypesafeCommandExtension.ParamTypeInfo;
+import gg.amy.catnip.utilities.typesafeCommands.parse.ArgParser;
+import gg.amy.catnip.utilities.typesafeCommands.types.TypeConverter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -22,7 +22,7 @@ public class UnixArgParser implements ArgParser {
     static final String NOFLAG = "NOFLAG";
     
     @Override
-    public Map<String, Object> parse(final CommandExtension extension, final CommandContainer cmd, final Message ctx,
+    public Map<String, Object> parse(final TypesafeCommandExtension extension, final CommandContainer cmd, final Message ctx,
                                      final String argstr) {
         if(argstr == null || argstr.trim().isEmpty()) {
             return ImmutableMap.of();
@@ -133,7 +133,7 @@ public class UnixArgParser implements ArgParser {
     // This is type-safe...
     // ...probably...
     @SuppressWarnings("unchecked")
-    private <T> Pair<T, String> tryConvert(final CommandExtension extension, final Message message, final String argstr,
+    private <T> Pair<T, String> tryConvert(final TypesafeCommandExtension extension, final Message message, final String argstr,
                                            final Class<T> cls) {
         final TypeConverter<Message, T> conv = (TypeConverter<Message, T>) extension.converters().getOrDefault(cls,
                 (TypeConverter<Message, T>) TypeConverter.nullifier());

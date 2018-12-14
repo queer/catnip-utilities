@@ -10,6 +10,7 @@
 
     <properties>
         <catnip.version>0.8.2</catnip.version>
+        <classgraph.version>4.1.6</classgraph.version>
 
         <junit.version>5.2.0</junit.version>
     </properties>
@@ -38,6 +39,12 @@
             <groupId>com.github.mewna</groupId>
             <artifactId>catnip</artifactId>
             <version>${catnip.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
         </dependency>
 
         <dependency>

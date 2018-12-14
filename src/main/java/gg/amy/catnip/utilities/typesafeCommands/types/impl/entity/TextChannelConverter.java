@@ -3,8 +3,8 @@ package gg.amy.catnip.utilities.typesafeCommands.types.impl.entity;
 import com.mewna.catnip.entity.channel.Channel;
 import com.mewna.catnip.entity.channel.TextChannel;
 import com.mewna.catnip.entity.message.Message;
-import gg.amy.zoe.ext.command.types.MessageConverter;
-import gg.amy.zoe.ext.command.types.TypeConverter;
+import gg.amy.catnip.utilities.typesafeCommands.types.MessageConverter;
+import gg.amy.catnip.utilities.typesafeCommands.types.TypeConverter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 

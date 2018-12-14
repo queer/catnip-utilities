@@ -2,7 +2,7 @@ package gg.amy.catnip.utilities.typesafeCommands.types.impl.entity;
 
 import com.mewna.catnip.entity.message.Message;
 import com.mewna.catnip.entity.user.User;
-import gg.amy.zoe.ext.command.types.MessageConverter;
+import gg.amy.catnip.utilities.typesafeCommands.types.MessageConverter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
