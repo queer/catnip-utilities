@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.types;
+package gg.amy.catnip.utilities.typesafeCommands.types;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;

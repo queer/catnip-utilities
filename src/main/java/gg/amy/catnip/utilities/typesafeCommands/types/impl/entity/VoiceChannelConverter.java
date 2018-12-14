@@ -1,7 +1,7 @@
-package gg.amy.catnip.utilities.command.types.impl.entity;
+package gg.amy.catnip.utilities.typesafeCommands.types.impl.entity;
 
 import com.mewna.catnip.entity.channel.Channel;
-import com.mewna.catnip.entity.channel.TextChannel;
+import com.mewna.catnip.entity.channel.VoiceChannel;
 import com.mewna.catnip.entity.message.Message;
 import gg.amy.zoe.ext.command.types.MessageConverter;
 import gg.amy.zoe.ext.command.types.TypeConverter;
@@ -12,15 +12,15 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author amy
  * @since 10/1/18.
  */
-public class TextChannelConverter implements MessageConverter<TextChannel> {
+public class VoiceChannelConverter implements MessageConverter<VoiceChannel> {
     private final TypeConverter<Message, Channel> converter = new ChannelConverter();
     
     @Override
-    public Pair<TextChannel, String> convert(final Message context, final String input) {
+    public Pair<VoiceChannel, String> convert(final Message context, final String input) {
         final Pair<Channel, String> res = converter.convert(context, input);
         if(res.getLeft() != null) {
-            if(res.getLeft().isText()) {
-                return ImmutablePair.of((TextChannel) res.getLeft(), res.getRight());
+            if(res.getLeft().isVoice()) {
+                return ImmutablePair.of((VoiceChannel) res.getLeft(), res.getRight());
             } else {
                 return ImmutablePair.of(null, res.getRight());
             }

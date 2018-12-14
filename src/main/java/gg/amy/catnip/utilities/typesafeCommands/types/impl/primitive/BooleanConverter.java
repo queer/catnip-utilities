@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.types.impl.primitive;
+package gg.amy.catnip.utilities.typesafeCommands.types.impl.primitive;
 
 import com.mewna.catnip.entity.message.Message;
 import gg.amy.zoe.ext.command.types.MessageConverter;
@@ -7,11 +7,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author amy
- * @since 10/1/18.
+ * @since 10/8/18.
  */
-public class IntegerConverter implements MessageConverter<Integer> {
+public class BooleanConverter implements MessageConverter<Boolean> {
     @Override
-    public Pair<Integer, String> convert(final Message context, final String input) {
+    public Pair<Boolean, String> convert(final Message context, final String input) {
         if(input == null || input.isEmpty()) {
             return ImmutablePair.of(null, input);
         }
@@ -19,7 +19,7 @@ public class IntegerConverter implements MessageConverter<Integer> {
             try {
                 final String[] split = input.split("\\s+", 2);
                 final String ret = (split.length > 1 ? split[1] : "").trim();
-                return ImmutablePair.of(Integer.parseInt(split[0]), ret);
+                return ImmutablePair.of(Boolean.parseBoolean(split[0]), ret);
             } catch(final NumberFormatException e) {
                 context.catnip().logAdapter().warn("Reached catch in IntegerConverter#convert - this shouldn't happen!");
                 return ImmutablePair.of(null, input);

@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.types;
+package gg.amy.catnip.utilities.typesafeCommands.types;
 
 import com.mewna.catnip.entity.message.Message;
 

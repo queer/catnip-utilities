@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command;
+package gg.amy.catnip.utilities.typesafeCommands;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

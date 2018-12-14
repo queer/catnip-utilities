@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.types.impl.entity;
+package gg.amy.catnip.utilities.typesafeCommands.types.impl.entity;
 
 import com.mewna.catnip.entity.channel.Channel;
 import com.mewna.catnip.entity.message.Message;

@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.parse;
+package gg.amy.catnip.utilities.typesafeCommands.parse;
 
 import com.mewna.catnip.entity.message.Message;
 import gg.amy.zoe.ext.command.CommandExtension;

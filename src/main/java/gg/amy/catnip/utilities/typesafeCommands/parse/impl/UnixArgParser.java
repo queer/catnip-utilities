@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.parse.impl;
+package gg.amy.catnip.utilities.typesafeCommands.parse.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.mewna.catnip.entity.message.Message;

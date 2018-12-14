@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command;
+package gg.amy.catnip.utilities.typesafeCommands;
 
 import com.mewna.catnip.entity.channel.Channel;
 import com.mewna.catnip.entity.channel.TextChannel;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  */
 @Accessors(fluent = true)
 @SuppressWarnings("unused")
-public class CommandExtension extends AbstractExtension {
+public class TypesafeCommandExtension extends AbstractExtension {
     private final Map<String, CommandContainer> commands = new ConcurrentHashMap<>();
     @Getter
     private final Map<Class<?>, TypeConverter<Message, ?>> converters = new ConcurrentHashMap<>();
@@ -55,28 +55,28 @@ public class CommandExtension extends AbstractExtension {
     @SuppressWarnings("FieldCanBeLocal")
     private MessageConsumer<Message> consumer;
     
-    public CommandExtension(@Nonnull final String defaultPrefix) {
+    public TypesafeCommandExtension(@Nonnull final String defaultPrefix) {
         this((_guild, _channel, _user) -> Collections.singletonList(defaultPrefix));
     }
     
-    public CommandExtension(@Nonnull final String defaultPrefix, @Nonnull final ArgParser argParser) {
+    public TypesafeCommandExtension(@Nonnull final String defaultPrefix, @Nonnull final ArgParser argParser) {
         this((_guild, _channel, _user) -> Collections.singletonList(defaultPrefix), argParser);
     }
     
     @SuppressWarnings("WeakerAccess")
-    public CommandExtension(@Nonnull final PrefixProvider provider) {
+    public TypesafeCommandExtension(@Nonnull final PrefixProvider provider) {
         this(provider, new GenericArgParser());
     }
     
     @SuppressWarnings("WeakerAccess")
-    public CommandExtension(@Nonnull final PrefixProvider provider, @Nonnull final ArgParser argParser) {
+    public TypesafeCommandExtension(@Nonnull final PrefixProvider provider, @Nonnull final ArgParser argParser) {
         super("commands");
         prefixProvider = provider;
         parser = argParser;
     }
     
     private static InputStream fromClass(final Class<?> c) {
-        return CommandExtension.class.getResourceAsStream('/' + c.getName().replace(".", "/") + ".class");
+        return TypesafeCommandExtension.class.getResourceAsStream('/' + c.getName().replace(".", "/") + ".class");
     }
     
     @Override
@@ -103,7 +103,7 @@ public class CommandExtension extends AbstractExtension {
     }
     
     @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
-    public <T> CommandExtension registerConverter(final Class<T> cls, final TypeConverter<Message, T> converter) {
+    public <T> TypesafeCommandExtension registerConverter(final Class<T> cls, final TypeConverter<Message, T> converter) {
         if(converters.containsKey(cls)) {
             throw new IllegalArgumentException("Already registered a converter for " + cls.getName() + "!!");
         }

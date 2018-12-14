@@ -1,4 +1,4 @@
-package gg.amy.catnip.utilities.command.prefix;
+package gg.amy.catnip.utilities.typesafeCommands.prefix;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
