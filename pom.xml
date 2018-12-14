@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <catnip.version>0471730</catnip.version>
+        <catnip.version>0.8.2</catnip.version>
 
         <junit.version>5.2.0</junit.version>
     </properties>
