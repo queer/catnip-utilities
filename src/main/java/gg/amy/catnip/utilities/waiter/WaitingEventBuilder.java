@@ -10,8 +10,6 @@ import lombok.experimental.Accessors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -24,7 +22,6 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor()
 public class WaitingEventBuilder<T> {
     private final Catnip catnip;
-    private final ScheduledExecutorService threadpool;
     private final EventType<T> type;
 
     @Getter
@@ -51,25 +48,22 @@ public class WaitingEventBuilder<T> {
 
     public MessageConsumer<T> action(Consumer<T> action) {
         MessageConsumer<T> consumer = catnip.on(type);
-        ScheduledFuture<?> scheduledTimeout;
+        Long timerId;
 
         if (timeout > 0 && unit != null) {
-            scheduledTimeout = threadpool.schedule(() ->
-            {
+            timerId = catnip.vertx().setTimer(unit.toMillis(timeout), __ -> {
                 consumer.unregister();
                 if (timeoutAction != null) timeoutAction.run();
-            }, this.timeout, unit);
+            });
         } else {
-            scheduledTimeout = null;
+            timerId = null;
         }
 
         consumer.handler(message -> {
             T body = message.body();
             if (condition != null && !condition.test(body)) return;
             consumer.unregister();
-            if (scheduledTimeout != null) {
-                scheduledTimeout.cancel(true);
-            }
+            if (timerId != null) catnip.vertx().cancelTimer(timerId);
             action.accept(body);
         });
 
