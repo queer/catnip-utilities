@@ -48,12 +48,14 @@ public class WaitingEventBuilder<T> {
 
     public MessageConsumer<T> action(Consumer<T> action) {
         MessageConsumer<T> consumer = catnip.on(type);
-        Long timerId;
 
-        if (timeout > 0 && unit != null) {
+        Long timerId;
+        if(timeout > 0 && unit != null) {
             timerId = catnip.vertx().setTimer(unit.toMillis(timeout), __ -> {
                 consumer.unregister();
-                if (timeoutAction != null) timeoutAction.run();
+                if(timeoutAction != null) {
+                    timeoutAction.run();
+                }
             });
         } else {
             timerId = null;
@@ -61,9 +63,13 @@ public class WaitingEventBuilder<T> {
 
         consumer.handler(message -> {
             T body = message.body();
-            if (condition != null && !condition.test(body)) return;
+            if(condition != null && !condition.test(body)) {
+                return;
+            }
             consumer.unregister();
-            if (timerId != null) catnip.vertx().cancelTimer(timerId);
+            if(timerId != null) {
+                catnip.vertx().cancelTimer(timerId);
+            }
             action.accept(body);
         });
 

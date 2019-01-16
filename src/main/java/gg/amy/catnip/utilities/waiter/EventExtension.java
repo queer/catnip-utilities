@@ -8,7 +8,6 @@ import lombok.experimental.Accessors;
  * @author AdrianTodt
  * @since 1/15/18.
  */
-@Accessors(fluent = true)
 public class EventExtension extends AbstractExtension {
     public EventExtension() {
         super("eventWaiter");
