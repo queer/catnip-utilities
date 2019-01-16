@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * @since 1/15/18.
  */
 @Accessors(fluent = true)
-@RequiredArgsConstructor()
+@RequiredArgsConstructor
 public class WaitingEventBuilder<T> {
     private final Catnip catnip;
     private final EventType<T> type;
@@ -50,26 +50,31 @@ public class WaitingEventBuilder<T> {
         MessageConsumer<T> consumer = catnip.on(type);
 
         Long timerId;
-        if(timeout > 0 && unit != null) {
+        if(timeout <= 0 || unit == null) {
+            timerId = null;
+        } else {
             timerId = catnip.vertx().setTimer(unit.toMillis(timeout), __ -> {
                 consumer.unregister();
+
                 if(timeoutAction != null) {
                     timeoutAction.run();
                 }
             });
-        } else {
-            timerId = null;
         }
 
         consumer.handler(message -> {
             T body = message.body();
+
             if(condition != null && !condition.test(body)) {
                 return;
             }
+
             consumer.unregister();
+
             if(timerId != null) {
                 catnip.vertx().cancelTimer(timerId);
             }
+
             action.accept(body);
         });
 

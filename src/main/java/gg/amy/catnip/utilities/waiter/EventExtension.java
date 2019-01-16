@@ -2,7 +2,6 @@ package gg.amy.catnip.utilities.waiter;
 
 import com.mewna.catnip.extension.AbstractExtension;
 import com.mewna.catnip.shard.EventType;
-import lombok.experimental.Accessors;
 
 /**
  * @author AdrianTodt
