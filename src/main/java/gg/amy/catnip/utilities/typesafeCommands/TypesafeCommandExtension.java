@@ -3,6 +3,7 @@ package gg.amy.catnip.utilities.typesafeCommands;
 import com.mewna.catnip.entity.channel.Channel;
 import com.mewna.catnip.entity.channel.TextChannel;
 import com.mewna.catnip.entity.channel.VoiceChannel;
+import com.mewna.catnip.entity.guild.Guild;
 import com.mewna.catnip.entity.message.Message;
 import com.mewna.catnip.entity.user.User;
 import com.mewna.catnip.extension.AbstractExtension;
@@ -11,10 +12,7 @@ import gg.amy.catnip.utilities.typesafeCommands.parse.ArgParser;
 import gg.amy.catnip.utilities.typesafeCommands.parse.impl.GenericArgParser;
 import gg.amy.catnip.utilities.typesafeCommands.prefix.PrefixProvider;
 import gg.amy.catnip.utilities.typesafeCommands.types.TypeConverter;
-import gg.amy.catnip.utilities.typesafeCommands.types.impl.entity.ChannelConverter;
-import gg.amy.catnip.utilities.typesafeCommands.types.impl.entity.TextChannelConverter;
-import gg.amy.catnip.utilities.typesafeCommands.types.impl.entity.UserConverter;
-import gg.amy.catnip.utilities.typesafeCommands.types.impl.entity.VoiceChannelConverter;
+import gg.amy.catnip.utilities.typesafeCommands.types.impl.entity.*;
 import gg.amy.catnip.utilities.typesafeCommands.types.impl.primitive.BooleanConverter;
 import gg.amy.catnip.utilities.typesafeCommands.types.impl.primitive.IntegerConverter;
 import gg.amy.catnip.utilities.typesafeCommands.types.impl.primitive.LongConverter;
@@ -92,6 +90,8 @@ public class TypesafeCommandExtension extends AbstractExtension {
                 .registerConverter(Channel.class, new ChannelConverter())
                 .registerConverter(TextChannel.class, new TextChannelConverter())
                 .registerConverter(VoiceChannel.class, new VoiceChannelConverter())
+                .registerConverter(Guild.class, new GuildConverter())
+                
                 .registerConverter(String.class, new StringConverter())
                 .registerConverter(Integer.class, new IntegerConverter())
                 .registerConverter(Boolean.class, new BooleanConverter())
