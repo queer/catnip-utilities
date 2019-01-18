@@ -34,18 +34,23 @@ public class UnixArgParser implements ArgParser {
             if(entry.getKey().startsWith("--")) {
                 final String arg = entry.getKey().replaceFirst("--", "");
                 final ParamTypeInfo typeInfo = cmd.typeInfo().get(arg);
-                final List<String> values = entry.getValue();
-                if(values.size() > 1 && !Collection.class.isAssignableFrom(typeInfo.typeClass())) {
-                    ctx.catnip().logAdapter().warn("Command {} passed {} args for flag {}, but only 1 was expected! Only taking first arg!",
-                            cmd.name(), values.size(), arg);
-                }
-                final Object res;
-                if(values.isEmpty()) {
-                    res = tryConvert(extension, ctx, "true", typeInfo.typeClass()).getLeft();
+                if(typeInfo != null) {
+                    final List<String> values = entry.getValue();
+                    if(values.size() > 1 && !Collection.class.isAssignableFrom(typeInfo.typeClass())) {
+                        ctx.catnip().logAdapter().warn("Command {} passed {} args for flag {}, but only 1 was expected! Only taking first arg!",
+                                cmd.name(), values.size(), arg);
+                    }
+                    final Object res;
+                    if(values.isEmpty()) {
+                        res = tryConvert(extension, ctx, "true", typeInfo.typeClass()).getLeft();
+                    } else {
+                        res = tryConvert(extension, ctx, values.get(0), typeInfo.typeClass()).getLeft();
+                    }
+                    result.put(arg, res);
                 } else {
-                    res = tryConvert(extension, ctx, values.get(0), typeInfo.typeClass()).getLeft();
+                    // TODO: How to handle this?
+                    ctx.catnip().logAdapter().warn("No typeInfo for {} (known: {})", arg, cmd.typeInfo().keySet());
                 }
-                result.put(arg, res);
             } else if(entry.getKey().equals(NOFLAG)) {
                 // TODO: How to handle this?
                 if(!entry.getValue().isEmpty()) {
