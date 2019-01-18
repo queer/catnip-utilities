@@ -36,6 +36,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +57,8 @@ public class TypesafeCommandExtension extends AbstractExtension {
     private PrefixProvider prefixProvider;
     @SuppressWarnings("FieldCanBeLocal")
     private MessageConsumer<Message> consumer;
+    
+    private final List<Predicate<Message>> predicates = new CopyOnWriteArrayList<>();
     
     public TypesafeCommandExtension(@Nonnull final String defaultPrefix) {
         this((_guild, _channel, _user) -> Collections.singletonList(defaultPrefix));
@@ -112,11 +116,12 @@ public class TypesafeCommandExtension extends AbstractExtension {
         return this;
     }
     
+    public TypesafeCommandExtension addPredicate(@Nonnull final Predicate<Message> predicate) {
+        predicates.add(predicate);
+        return this;
+    }
+    
     private void invoke(final Message message) {
-        // TODO: Remove
-        if(!message.author().id().equals("128316294742147072")) {
-            return;
-        }
         final List<String> prefixes = prefixProvider.providePrefix(message.guildId(), message.channelId(), message.author().id());
         String content = message.content();
         String prefix = null;
@@ -127,6 +132,9 @@ public class TypesafeCommandExtension extends AbstractExtension {
             }
         }
         if(prefix == null) {
+            return;
+        }
+        if(!predicates.stream().allMatch(e -> e.test(message))) {
             return;
         }
         content = content.substring(prefix.length()).trim();
