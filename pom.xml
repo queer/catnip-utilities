@@ -9,8 +9,9 @@
     <version>0.1.0</version>
 
     <properties>
-        <catnip.version>0.12.3</catnip.version>
+        <catnip.version>0.13.1</catnip.version>
         <classgraph.version>4.1.6</classgraph.version>
+        <lombok.version>1.18.2</lombok.version>
 
         <junit.version>5.2.0</junit.version>
     </properties>
@@ -46,6 +47,12 @@
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
             <version>${classgraph.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
