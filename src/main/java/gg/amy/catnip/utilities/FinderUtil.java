@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings({"Duplicates", "unused", "WeakerAccess"})
 public final class FinderUtil {
-    public final static Pattern DISCORD_ID = Pattern.compile("\\d{17,20}"); // ID
+    public final static Pattern DISCORD_ID = Pattern.compile("\\d{1,20}"); // ID
     public final static Pattern FULL_USER_REF = Pattern.compile("(\\S.{0,30}\\S)\\s*#(\\d{4})"); // $1 -> username, $2 -> discriminator
-    public final static Pattern USER_MENTION = Pattern.compile("<@!?(\\d{17,20})>"); // $1 -> ID
-    public final static Pattern CHANNEL_MENTION = Pattern.compile("<#(\\d{17,20})>"); // $1 -> ID
-    public final static Pattern ROLE_MENTION = Pattern.compile("<@&(\\d{17,20})>"); // $1 -> ID
-    public final static Pattern EMOTE_MENTION = Pattern.compile("<:(.{2,32}):(\\d{17,20})>");
+    public final static Pattern USER_MENTION = Pattern.compile("<@!?(\\d{1,20})>"); // $1 -> ID
+    public final static Pattern CHANNEL_MENTION = Pattern.compile("<#(\\d{1,20})>"); // $1 -> ID
+    public final static Pattern ROLE_MENTION = Pattern.compile("<@&(\\d{1,20})>"); // $1 -> ID
+    public final static Pattern EMOTE_MENTION = Pattern.compile("<:(.{2,32}):(\\d{1,20})>");
 
     public static List<User> findUsers(String query, Catnip catnip) {
         Matcher userMention = USER_MENTION.matcher(query);
@@ -40,20 +40,26 @@ public final class FinderUtil {
 
         if (userMention.matches()) {
             User user = catnip.cache().users().getById(userMention.group(1));
-            if (user != null)
+
+            if (user != null) {
                 return Collections.singletonList(user);
+            }
         } else if (fullRefMatch.matches()) {
             String lowerName = fullRefMatch.group(1).toLowerCase();
             String discrim = fullRefMatch.group(2);
             List<User> users = catnip.cache().users()
                 .stream().filter(user -> user.username().toLowerCase().equals(lowerName) && user.discriminator().equals(discrim))
                 .collect(Collectors.toList());
-            if (!users.isEmpty())
+
+            if (!users.isEmpty()) {
                 return users;
+            }
         } else if (DISCORD_ID.matcher(query).matches()) {
             User user = catnip.cache().users().getById(query);
-            if (user != null)
+
+            if (user != null) {
                 return Collections.singletonList(user);
+            }
         }
 
         ArrayList<User> exact = new ArrayList<>();
@@ -63,21 +69,27 @@ public final class FinderUtil {
         String lowerquery = query.toLowerCase();
         catnip.cache().users().forEach(user -> {
             String name = user.username();
-            if (name.equals(query))
+
+            if (name.equals(query)) {
                 exact.add(user);
-            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
+            } else if (name.equalsIgnoreCase(query) && exact.isEmpty()) {
                 wrongcase.add(user);
-            else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            } else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty()) {
                 startswith.add(user);
-            else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            } else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty()) {
                 contains.add(user);
+            }
         });
-        if (!exact.isEmpty())
+
+        if (!exact.isEmpty()) {
             return Collections.unmodifiableList(exact);
-        if (!wrongcase.isEmpty())
+        }
+        if (!wrongcase.isEmpty()) {
             return Collections.unmodifiableList(wrongcase);
-        if (!startswith.isEmpty())
+        }
+        if (!startswith.isEmpty()) {
             return Collections.unmodifiableList(startswith);
+        }
         return Collections.unmodifiableList(contains);
     }
 
@@ -92,62 +104,88 @@ public final class FinderUtil {
         } catch (Exception e) {
             return null;
         }
+
         String discrim = null;
         Matcher userMention = USER_MENTION.matcher(query);
+
         if (userMention.matches()) {
             String id = userMention.group(1);
             User user = guild.catnip().cache().users().getById(id);
-            if (user != null && bans.contains(user))
+
+            if (user != null && bans.contains(user)) {
                 return Collections.singletonList(user);
-            for (User u : bans)
-                if (u.id().equals(id))
+            }
+
+            for (User u : bans) {
+                if (u.id().equals(id)) {
                     return Collections.singletonList(u);
+                }
+            }
         } else if (FULL_USER_REF.matcher(query).matches()) {
             discrim = query.substring(query.length() - 4);
             query = query.substring(0, query.length() - 5).trim();
         } else if (DISCORD_ID.matcher(query).matches()) {
             User user = guild.catnip().cache().users().getById(query);
-            if (user != null && bans.contains(user))
+
+            if (user != null && bans.contains(user)) {
                 return Collections.singletonList(user);
-            for (User u : bans)
-                if (u.id().equals(query))
+            }
+
+            for (User u : bans) {
+                if (u.id().equals(query)) {
                     return Collections.singletonList(u);
+                }
+            }
         }
+
         ArrayList<User> exact = new ArrayList<>();
         ArrayList<User> wrongcase = new ArrayList<>();
         ArrayList<User> startswith = new ArrayList<>();
         ArrayList<User> contains = new ArrayList<>();
+
         String lowerQuery = query.toLowerCase();
         for (User u : bans) {
             // If a discrim is specified then we skip all users without it.
-            if (discrim != null && !u.discriminator().equals(discrim))
+            if (discrim != null && !u.discriminator().equals(discrim)) {
                 continue;
+            }
 
-            if (u.username().equals(query))
+            if (u.username().equals(query)) {
                 exact.add(u);
-            else if (exact.isEmpty() && u.username().equalsIgnoreCase(query))
+            } else if (exact.isEmpty() && u.username().equalsIgnoreCase(query)) {
                 wrongcase.add(u);
-            else if (wrongcase.isEmpty() && u.username().toLowerCase().startsWith(lowerQuery))
+            } else if (wrongcase.isEmpty() && u.username().toLowerCase().startsWith(lowerQuery)) {
                 startswith.add(u);
-            else if (startswith.isEmpty() && u.username().toLowerCase().contains(lowerQuery))
+            } else if (startswith.isEmpty() && u.username().toLowerCase().contains(lowerQuery)) {
                 contains.add(u);
+            }
         }
-        if (!exact.isEmpty())
+
+        if (!exact.isEmpty()) {
             return Collections.unmodifiableList(exact);
-        if (!wrongcase.isEmpty())
+        }
+
+        if (!wrongcase.isEmpty()) {
             return Collections.unmodifiableList(wrongcase);
-        if (!startswith.isEmpty())
+        }
+
+        if (!startswith.isEmpty()) {
             return Collections.unmodifiableList(startswith);
+        }
+
         return Collections.unmodifiableList(contains);
     }
 
     public static List<Member> findMembers(String query, Guild guild) {
         Matcher userMention = USER_MENTION.matcher(query);
         Matcher fullRefMatch = FULL_USER_REF.matcher(query);
+
         if (userMention.matches()) {
             Member member = guild.members().getById(userMention.group(1));
-            if (member != null)
+
+            if (member != null) {
                 return Collections.singletonList(member);
+            }
         } else if (fullRefMatch.matches()) {
             String lowerName = fullRefMatch.group(1).toLowerCase();
             String discrim = fullRefMatch.group(2);
@@ -155,36 +193,51 @@ public final class FinderUtil {
                 .filter(member -> member.user().username().toLowerCase().equals(lowerName)
                     && member.user().discriminator().equals(discrim))
                 .collect(Collectors.toList());
-            if (!members.isEmpty())
+
+            if (!members.isEmpty()) {
                 return members;
+            }
         } else if (DISCORD_ID.matcher(query).matches()) {
             Member member = guild.members().getById(query);
-            if (member != null)
+
+            if (member != null) {
                 return Collections.singletonList(member);
+            }
         }
+
         ArrayList<Member> exact = new ArrayList<>();
         ArrayList<Member> wrongcase = new ArrayList<>();
         ArrayList<Member> startswith = new ArrayList<>();
         ArrayList<Member> contains = new ArrayList<>();
+
         String lowerquery = query.toLowerCase();
         guild.members().forEach(member -> {
             String name = member.user().username();
             String effName = member.effectiveName();
-            if (name.equals(query) || effName.equals(query))
+
+            if (name.equals(query) || effName.equals(query)) {
                 exact.add(member);
-            else if ((name.equalsIgnoreCase(query) || effName.equalsIgnoreCase(query)) && exact.isEmpty())
+            } else if ((name.equalsIgnoreCase(query) || effName.equalsIgnoreCase(query)) && exact.isEmpty()) {
                 wrongcase.add(member);
-            else if ((name.toLowerCase().startsWith(lowerquery) || effName.toLowerCase().startsWith(lowerquery)) && wrongcase.isEmpty())
+            } else if ((name.toLowerCase().startsWith(lowerquery) || effName.toLowerCase().startsWith(lowerquery)) && wrongcase.isEmpty()) {
                 startswith.add(member);
-            else if ((name.toLowerCase().contains(lowerquery) || effName.toLowerCase().contains(lowerquery)) && startswith.isEmpty())
+            } else if ((name.toLowerCase().contains(lowerquery) || effName.toLowerCase().contains(lowerquery)) && startswith.isEmpty()) {
                 contains.add(member);
+            }
         });
-        if (!exact.isEmpty())
+
+        if (!exact.isEmpty()) {
             return Collections.unmodifiableList(exact);
-        if (!wrongcase.isEmpty())
+        }
+
+        if (!wrongcase.isEmpty()) {
             return Collections.unmodifiableList(wrongcase);
-        if (!startswith.isEmpty())
+        }
+
+        if (!startswith.isEmpty()) {
             return Collections.unmodifiableList(startswith);
+        }
+
         return Collections.unmodifiableList(contains);
     }
 
@@ -222,37 +275,53 @@ public final class FinderUtil {
 
     public static List<Role> findRoles(String query, Guild guild) {
         Matcher roleMention = ROLE_MENTION.matcher(query);
+
         if (roleMention.matches()) {
             Role role = guild.roles().getById(roleMention.group(1));
-            if (role != null && role.mentionable())
+
+            if (role != null && role.mentionable()) {
                 return Collections.singletonList(role);
+            }
         } else if (DISCORD_ID.matcher(query).matches()) {
             Role role = guild.roles().getById(query);
-            if (role != null)
+
+            if (role != null) {
                 return Collections.singletonList(role);
+            }
         }
+
         ArrayList<Role> exact = new ArrayList<>();
         ArrayList<Role> wrongcase = new ArrayList<>();
         ArrayList<Role> startswith = new ArrayList<>();
         ArrayList<Role> contains = new ArrayList<>();
+
         String lowerquery = query.toLowerCase();
         guild.roles().forEach((role) -> {
             String name = role.name();
-            if (name.equals(query))
+
+            if (name.equals(query)) {
                 exact.add(role);
-            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
+            } else if (name.equalsIgnoreCase(query) && exact.isEmpty()) {
                 wrongcase.add(role);
-            else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            } else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty()) {
                 startswith.add(role);
-            else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            } else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty()) {
                 contains.add(role);
+            }
         });
-        if (!exact.isEmpty())
+
+        if (!exact.isEmpty()) {
             return Collections.unmodifiableList(exact);
-        if (!wrongcase.isEmpty())
+        }
+
+        if (!wrongcase.isEmpty()) {
             return Collections.unmodifiableList(wrongcase);
-        if (!startswith.isEmpty())
+        }
+
+        if (!startswith.isEmpty()) {
             return Collections.unmodifiableList(startswith);
+        }
+
         return Collections.unmodifiableList(contains);
     }
 
@@ -269,11 +338,19 @@ public final class FinderUtil {
 
         if (f.isMentionable() && channelMention.matches()) {
             GuildChannel c = cache.getById(channelMention.group(1));
-            if (!f.canCast(c)) return null;
+
+            if (!f.canCast(c)) {
+                return null;
+            }
+
             return Collections.singletonList(f.cast(c));
         } else if (DISCORD_ID.matcher(query).matches()) {
             GuildChannel c = cache.getById(query);
-            if (!f.canCast(c)) return null;
+
+            if (!f.canCast(c)) {
+                return null;
+            }
+
             return Collections.singletonList(f.cast(c));
         }
 
@@ -281,26 +358,39 @@ public final class FinderUtil {
         ArrayList<T> wrongcase = new ArrayList<>();
         ArrayList<T> startswith = new ArrayList<>();
         ArrayList<T> contains = new ArrayList<>();
+
         String lowerquery = query.toLowerCase();
         cache.forEach((c) -> {
-            if (!f.canCast(c)) return;
+            if (!f.canCast(c)) {
+                return;
+            }
+
             T tc = f.cast(c);
             String name = tc.name();
-            if (name.equals(query))
+
+            if (name.equals(query)) {
                 exact.add(tc);
-            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
+            } else if (name.equalsIgnoreCase(query) && exact.isEmpty()) {
                 wrongcase.add(tc);
-            else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            } else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty()) {
                 startswith.add(tc);
-            else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            } else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty()) {
                 contains.add(tc);
+            }
         });
-        if (!exact.isEmpty())
+
+        if (!exact.isEmpty()) {
             return Collections.unmodifiableList(exact);
-        if (!wrongcase.isEmpty())
+        }
+
+        if (!wrongcase.isEmpty()) {
             return Collections.unmodifiableList(wrongcase);
-        if (!startswith.isEmpty())
+        }
+
+        if (!startswith.isEmpty()) {
             return Collections.unmodifiableList(startswith);
+        }
+
         return Collections.unmodifiableList(contains);
     }
 
@@ -309,38 +399,52 @@ public final class FinderUtil {
 
         if (DISCORD_ID.matcher(query).matches()) {
             Emoji emoji = cache.getById(query);
-            if (emoji != null)
+
+            if (emoji != null) {
                 return Collections.singletonList(emoji);
+            }
         } else if (mentionMatcher.matches()) {
             String emojiName = mentionMatcher.group(1);
             String emojiId = mentionMatcher.group(2);
             Emoji emoji = cache.getById(emojiId);
-            if (emoji != null && emoji.name().equals(emojiName))
+
+            if (emoji != null && emoji.name().equals(emojiName)) {
                 return Collections.singletonList(emoji);
+            }
         }
 
         ArrayList<Emoji> exact = new ArrayList<>();
         ArrayList<Emoji> wrongcase = new ArrayList<>();
         ArrayList<Emoji> startswith = new ArrayList<>();
         ArrayList<Emoji> contains = new ArrayList<>();
+
         String lowerquery = query.toLowerCase();
         cache.forEach(emoji -> {
             String name = emoji.name();
-            if (name.equals(query))
+
+            if (name.equals(query)) {
                 exact.add(emoji);
-            else if (name.equalsIgnoreCase(query) && exact.isEmpty())
+            } else if (name.equalsIgnoreCase(query) && exact.isEmpty()) {
                 wrongcase.add(emoji);
-            else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty())
+            } else if (name.toLowerCase().startsWith(lowerquery) && wrongcase.isEmpty()) {
                 startswith.add(emoji);
-            else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty())
+            } else if (name.toLowerCase().contains(lowerquery) && startswith.isEmpty()) {
                 contains.add(emoji);
+            }
         });
-        if (!exact.isEmpty())
+
+        if (!exact.isEmpty()) {
             return Collections.unmodifiableList(exact);
-        if (!wrongcase.isEmpty())
+        }
+
+        if (!wrongcase.isEmpty()) {
             return Collections.unmodifiableList(wrongcase);
-        if (!startswith.isEmpty())
+        }
+
+        if (!startswith.isEmpty()) {
             return Collections.unmodifiableList(startswith);
+        }
+
         return Collections.unmodifiableList(contains);
     }
 
