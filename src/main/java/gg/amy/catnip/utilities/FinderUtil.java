@@ -16,7 +16,6 @@ import com.mewna.catnip.entity.user.User;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -94,16 +93,13 @@ public final class FinderUtil {
     }
 
     public static List<User> findBannedUsers(String query, Guild guild) {
-        List<User> bans;
 
-        try {
-            bans = guild.catnip().rest().guild().getGuildBans(guild.id())
-                .toCompletableFuture().get().stream()
+        List<User> bans = guild.catnip().rest().guild().getGuildBans(guild.id())
+            .thenApply(u -> u.stream()
                 .map(GuildBan::user)
-                .collect(Collectors.toList());
-        } catch (Exception e) {
-            return null;
-        }
+                .collect(Collectors.toList())
+            ).toCompletableFuture().join();
+
 
         String discrim = null;
         Matcher userMention = USER_MENTION.matcher(query);
