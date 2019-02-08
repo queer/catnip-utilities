@@ -14,8 +14,9 @@ import com.mewna.catnip.entity.misc.Emoji;
 import com.mewna.catnip.entity.user.User;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public final class FinderUtil {
     public final static Pattern ROLE_MENTION = Pattern.compile("<@&(\\d{1,20})>"); // $1 -> ID
     public final static Pattern EMOTE_MENTION = Pattern.compile("<:(.{2,32}):(\\d{1,20})>");
 
-    public static List<User> findUsers(String query, Catnip catnip) {
+    public static Collection<User> findUsers(String query, Catnip catnip) {
         Matcher userMention = USER_MENTION.matcher(query);
         Matcher fullRefMatch = FULL_USER_REF.matcher(query);
 
@@ -41,14 +42,13 @@ public final class FinderUtil {
             User user = catnip.cache().users().getById(userMention.group(1));
 
             if (user != null) {
-                return Collections.singletonList(user);
+                return Collections.singleton(user);
             }
         } else if (fullRefMatch.matches()) {
             String lowerName = fullRefMatch.group(1).toLowerCase();
             String discrim = fullRefMatch.group(2);
-            List<User> users = catnip.cache().users()
-                .stream().filter(user -> user.username().toLowerCase().equals(lowerName) && user.discriminator().equals(discrim))
-                .collect(Collectors.toList());
+            Collection<User> users = catnip.cache().users()
+                .find(user -> user.username().toLowerCase().equals(lowerName) && user.discriminator().equals(discrim));
 
             if (!users.isEmpty()) {
                 return users;
@@ -57,7 +57,7 @@ public final class FinderUtil {
             User user = catnip.cache().users().getById(query);
 
             if (user != null) {
-                return Collections.singletonList(user);
+                return Collections.singleton(user);
             }
         }
 
@@ -81,23 +81,23 @@ public final class FinderUtil {
         });
 
         if (!exact.isEmpty()) {
-            return Collections.unmodifiableList(exact);
+            return Collections.unmodifiableCollection(exact);
         }
         if (!wrongcase.isEmpty()) {
-            return Collections.unmodifiableList(wrongcase);
+            return Collections.unmodifiableCollection(wrongcase);
         }
         if (!startswith.isEmpty()) {
-            return Collections.unmodifiableList(startswith);
+            return Collections.unmodifiableCollection(startswith);
         }
-        return Collections.unmodifiableList(contains);
+        return Collections.unmodifiableCollection(contains);
     }
 
-    public static List<User> findBannedUsers(String query, Guild guild) {
+    public static Collection<User> findBannedUsers(String query, Guild guild) {
 
-        List<User> bans = guild.catnip().rest().guild().getGuildBans(guild.id())
+        Collection<User> bans = guild.catnip().rest().guild().getGuildBans(guild.id())
             .thenApply(u -> u.stream()
                 .map(GuildBan::user)
-                .collect(Collectors.toList())
+                .collect(Collectors.toSet())
             ).toCompletableFuture().join();
 
 
@@ -109,12 +109,12 @@ public final class FinderUtil {
             User user = guild.catnip().cache().users().getById(id);
 
             if (user != null && bans.contains(user)) {
-                return Collections.singletonList(user);
+                return Collections.singleton(user);
             }
 
             for (User u : bans) {
                 if (u.id().equals(id)) {
-                    return Collections.singletonList(u);
+                    return Collections.singleton(u);
                 }
             }
         } else if (FULL_USER_REF.matcher(query).matches()) {
@@ -124,12 +124,12 @@ public final class FinderUtil {
             User user = guild.catnip().cache().users().getById(query);
 
             if (user != null && bans.contains(user)) {
-                return Collections.singletonList(user);
+                return Collections.singleton(user);
             }
 
             for (User u : bans) {
                 if (u.id().equals(query)) {
-                    return Collections.singletonList(u);
+                    return Collections.singleton(u);
                 }
             }
         }
@@ -158,21 +158,21 @@ public final class FinderUtil {
         }
 
         if (!exact.isEmpty()) {
-            return Collections.unmodifiableList(exact);
+            return Collections.unmodifiableCollection(exact);
         }
 
         if (!wrongcase.isEmpty()) {
-            return Collections.unmodifiableList(wrongcase);
+            return Collections.unmodifiableCollection(wrongcase);
         }
 
         if (!startswith.isEmpty()) {
-            return Collections.unmodifiableList(startswith);
+            return Collections.unmodifiableCollection(startswith);
         }
 
-        return Collections.unmodifiableList(contains);
+        return Collections.unmodifiableCollection(contains);
     }
 
-    public static List<Member> findMembers(String query, Guild guild) {
+    public static Collection<Member> findMembers(String query, Guild guild) {
         Matcher userMention = USER_MENTION.matcher(query);
         Matcher fullRefMatch = FULL_USER_REF.matcher(query);
 
@@ -180,15 +180,14 @@ public final class FinderUtil {
             Member member = guild.members().getById(userMention.group(1));
 
             if (member != null) {
-                return Collections.singletonList(member);
+                return Collections.singleton(member);
             }
         } else if (fullRefMatch.matches()) {
             String lowerName = fullRefMatch.group(1).toLowerCase();
             String discrim = fullRefMatch.group(2);
-            List<Member> members = guild.members().stream()
-                .filter(member -> member.user().username().toLowerCase().equals(lowerName)
-                    && member.user().discriminator().equals(discrim))
-                .collect(Collectors.toList());
+            Collection<Member> members = guild.members()
+                .find(member -> member.user().username().toLowerCase().equals(lowerName)
+                    && member.user().discriminator().equals(discrim));
 
             if (!members.isEmpty()) {
                 return members;
@@ -197,7 +196,7 @@ public final class FinderUtil {
             Member member = guild.members().getById(query);
 
             if (member != null) {
-                return Collections.singletonList(member);
+                return Collections.singleton(member);
             }
         }
 
@@ -223,66 +222,66 @@ public final class FinderUtil {
         });
 
         if (!exact.isEmpty()) {
-            return Collections.unmodifiableList(exact);
+            return Collections.unmodifiableCollection(exact);
         }
 
         if (!wrongcase.isEmpty()) {
-            return Collections.unmodifiableList(wrongcase);
+            return Collections.unmodifiableCollection(wrongcase);
         }
 
         if (!startswith.isEmpty()) {
-            return Collections.unmodifiableList(startswith);
+            return Collections.unmodifiableCollection(startswith);
         }
 
-        return Collections.unmodifiableList(contains);
+        return Collections.unmodifiableCollection(contains);
     }
 
-    public static List<GuildChannel> findChannels(String query, Catnip catnip) {
+    public static Collection<GuildChannel> findChannels(String query, Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.ANY, catnip.cache().channels());
     }
 
-    public static List<GuildChannel> findChannels(String query, Guild guild) {
+    public static Collection<GuildChannel> findChannels(String query, Guild guild) {
         return genericChannelSearch(query, ChannelFilter.ANY, guild.channels());
     }
 
-    public static List<TextChannel> findTextChannels(String query, Catnip catnip) {
+    public static Collection<TextChannel> findTextChannels(String query, Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.TEXT, catnip.cache().channels());
     }
 
-    public static List<TextChannel> findTextChannels(String query, Guild guild) {
+    public static Collection<TextChannel> findTextChannels(String query, Guild guild) {
         return genericChannelSearch(query, ChannelFilter.TEXT, guild.channels());
     }
 
-    public static List<VoiceChannel> findVoiceChannels(String query, Catnip catnip) {
+    public static Collection<VoiceChannel> findVoiceChannels(String query, Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.VOICE, catnip.cache().channels());
     }
 
-    public static List<VoiceChannel> findVoiceChannels(String query, Guild guild) {
+    public static Collection<VoiceChannel> findVoiceChannels(String query, Guild guild) {
         return genericChannelSearch(query, ChannelFilter.VOICE, guild.channels());
     }
 
-    public static List<Category> findCategories(String query, Catnip catnip) {
+    public static Collection<Category> findCategories(String query, Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.CATEGORY, catnip.cache().channels());
     }
 
-    public static List<Category> findCategories(String query, Guild guild) {
+    public static Collection<Category> findCategories(String query, Guild guild) {
         return genericChannelSearch(query, ChannelFilter.CATEGORY, guild.channels());
     }
 
-    public static List<Role> findRoles(String query, Guild guild) {
+    public static Collection<Role> findRoles(String query, Guild guild) {
         Matcher roleMention = ROLE_MENTION.matcher(query);
 
         if (roleMention.matches()) {
             Role role = guild.roles().getById(roleMention.group(1));
 
             if (role != null && role.mentionable()) {
-                return Collections.singletonList(role);
+                return Collections.singleton(role);
             }
         } else if (DISCORD_ID.matcher(query).matches()) {
             Role role = guild.roles().getById(query);
 
             if (role != null) {
-                return Collections.singletonList(role);
+                return Collections.singleton(role);
             }
         }
 
@@ -307,29 +306,29 @@ public final class FinderUtil {
         });
 
         if (!exact.isEmpty()) {
-            return Collections.unmodifiableList(exact);
+            return Collections.unmodifiableCollection(exact);
         }
 
         if (!wrongcase.isEmpty()) {
-            return Collections.unmodifiableList(wrongcase);
+            return Collections.unmodifiableCollection(wrongcase);
         }
 
         if (!startswith.isEmpty()) {
-            return Collections.unmodifiableList(startswith);
+            return Collections.unmodifiableCollection(startswith);
         }
 
-        return Collections.unmodifiableList(contains);
+        return Collections.unmodifiableCollection(contains);
     }
 
-    public static List<Emoji> findEmojis(String query, Guild guild) {
+    public static Collection<Emoji> findEmojis(String query, Guild guild) {
         return genericEmojiSearch(query, guild.emojis());
     }
 
-    public static List<Emoji> findEmojis(String query, Catnip catnip) {
+    public static Collection<Emoji> findEmojis(String query, Catnip catnip) {
         return genericEmojiSearch(query, catnip.cache().emojis());
     }
 
-    private static <T extends GuildChannel> List<T> genericChannelSearch(String query, ChannelFilter<T> f, NamedCacheView<GuildChannel> cache) {
+    private static <T extends GuildChannel> Collection<T> genericChannelSearch(String query, ChannelFilter<T> f, NamedCacheView<GuildChannel> cache) {
         Matcher channelMention = CHANNEL_MENTION.matcher(query);
 
         if (f.isMentionable() && channelMention.matches()) {
@@ -339,7 +338,7 @@ public final class FinderUtil {
                 return null;
             }
 
-            return Collections.singletonList(f.cast(c));
+            return Collections.singleton(f.cast(c));
         } else if (DISCORD_ID.matcher(query).matches()) {
             GuildChannel c = cache.getById(query);
 
@@ -347,7 +346,7 @@ public final class FinderUtil {
                 return null;
             }
 
-            return Collections.singletonList(f.cast(c));
+            return Collections.singleton(f.cast(c));
         }
 
         ArrayList<T> exact = new ArrayList<>();
@@ -376,28 +375,28 @@ public final class FinderUtil {
         });
 
         if (!exact.isEmpty()) {
-            return Collections.unmodifiableList(exact);
+            return Collections.unmodifiableCollection(exact);
         }
 
         if (!wrongcase.isEmpty()) {
-            return Collections.unmodifiableList(wrongcase);
+            return Collections.unmodifiableCollection(wrongcase);
         }
 
         if (!startswith.isEmpty()) {
-            return Collections.unmodifiableList(startswith);
+            return Collections.unmodifiableCollection(startswith);
         }
 
-        return Collections.unmodifiableList(contains);
+        return Collections.unmodifiableCollection(contains);
     }
 
-    private static List<Emoji> genericEmojiSearch(String query, NamedCacheView<Emoji.CustomEmoji> cache) {
+    private static Collection<Emoji> genericEmojiSearch(String query, NamedCacheView<Emoji.CustomEmoji> cache) {
         Matcher mentionMatcher = EMOTE_MENTION.matcher(query);
 
         if (DISCORD_ID.matcher(query).matches()) {
             Emoji emoji = cache.getById(query);
 
             if (emoji != null) {
-                return Collections.singletonList(emoji);
+                return Collections.singleton(emoji);
             }
         } else if (mentionMatcher.matches()) {
             String emojiName = mentionMatcher.group(1);
@@ -405,7 +404,7 @@ public final class FinderUtil {
             Emoji emoji = cache.getById(emojiId);
 
             if (emoji != null && emoji.name().equals(emojiName)) {
-                return Collections.singletonList(emoji);
+                return Collections.singleton(emoji);
             }
         }
 
@@ -430,18 +429,18 @@ public final class FinderUtil {
         });
 
         if (!exact.isEmpty()) {
-            return Collections.unmodifiableList(exact);
+            return Collections.unmodifiableCollection(exact);
         }
 
         if (!wrongcase.isEmpty()) {
-            return Collections.unmodifiableList(wrongcase);
+            return Collections.unmodifiableCollection(wrongcase);
         }
 
         if (!startswith.isEmpty()) {
-            return Collections.unmodifiableList(startswith);
+            return Collections.unmodifiableCollection(startswith);
         }
 
-        return Collections.unmodifiableList(contains);
+        return Collections.unmodifiableCollection(contains);
     }
 
     // Prevent instantiation
