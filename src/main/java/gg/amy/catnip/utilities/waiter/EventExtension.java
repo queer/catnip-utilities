@@ -1,7 +1,7 @@
 package gg.amy.catnip.utilities.waiter;
 
 import com.mewna.catnip.extension.AbstractExtension;
-import com.mewna.catnip.shard.EventType;
+import com.mewna.catnip.shard.event.EventType;
 
 /**
  * @author AdrianTodt
@@ -12,7 +12,7 @@ public class EventExtension extends AbstractExtension {
         super("eventWaiter");
     }
 
-    public <T> WaitingEventBuilder<T> waitForEvent(EventType<T> type) {
-        return new WaitingEventBuilder<T>(catnip(), type);
+    public <T> WaitingEventBuilder<T> waitForEvent(final EventType<T> type) {
+        return new WaitingEventBuilder<>(catnip(), type);
     }
 }

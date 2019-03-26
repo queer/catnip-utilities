@@ -9,7 +9,7 @@
     <version>0.1.0</version>
 
     <properties>
-        <catnip.version>0.13.1</catnip.version>
+        <catnip.version>1.1.0</catnip.version>
         <classgraph.version>4.1.6</classgraph.version>
         <lombok.version>1.18.2</lombok.version>
 
@@ -37,7 +37,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.mewna</groupId>
+            <groupId>com.mewna</groupId>
             <artifactId>catnip</artifactId>
             <version>${catnip.version}</version>
             <scope>provided</scope>

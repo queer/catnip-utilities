@@ -1,7 +1,7 @@
 package gg.amy.catnip.utilities.waiter;
 
 import com.mewna.catnip.Catnip;
-import com.mewna.catnip.shard.EventType;
+import com.mewna.catnip.shard.event.EventType;
 import io.vertx.core.eventbus.MessageConsumer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +34,12 @@ public class WaitingEventBuilder<T> {
     @Setter
     private Predicate<T> condition;
 
-    public WaitingEventBuilder<T> timeout(long timeout, @Nonnull TimeUnit unit) {
+    public WaitingEventBuilder<T> timeout(final long timeout, @Nonnull final TimeUnit unit) {
         return timeout(timeout, unit, null);
     }
 
-    public WaitingEventBuilder<T> timeout(long timeout, @Nonnull TimeUnit unit, @Nullable Runnable timeoutAction) {
+    public WaitingEventBuilder<T> timeout(final long timeout, @Nonnull final TimeUnit unit,
+                                          @Nullable final Runnable timeoutAction) {
         this.timeout = timeout;
         this.unit = unit;
         this.timeoutAction = timeoutAction;
@@ -46,10 +47,10 @@ public class WaitingEventBuilder<T> {
         return this;
     }
 
-    public MessageConsumer<T> action(Consumer<T> action) {
-        MessageConsumer<T> consumer = catnip.on(type);
+    public MessageConsumer<T> action(final Consumer<T> action) {
+        final MessageConsumer<T> consumer = catnip.on(type);
 
-        Long timerId;
+        final Long timerId;
         if(timeout <= 0 || unit == null) {
             timerId = null;
         } else {
@@ -63,7 +64,7 @@ public class WaitingEventBuilder<T> {
         }
 
         consumer.handler(message -> {
-            T body = message.body();
+            final T body = message.body();
 
             if(condition != null && !condition.test(body)) {
                 return;
