@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 public class MenuEmoji {
     private String leftArrow = "⬅";
     private String rightArrow = "➡";
-    private String accept = "yes:437708741798920229";
-    private String cancel = "xmark:392356116102774786";
+    private String accept = "✅";
+    private String cancel = "\uD83D\uDEAB";
     private String refresh = "\uD83D\uDD04";
 }
