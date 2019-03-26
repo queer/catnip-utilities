@@ -2,6 +2,7 @@ package gg.amy.catnip.utilities;
 
 import com.mewna.catnip.Catnip;
 import com.mewna.catnip.cache.view.NamedCacheView;
+import com.mewna.catnip.entity.Snowflake;
 import com.mewna.catnip.entity.channel.Category;
 import com.mewna.catnip.entity.channel.GuildChannel;
 import com.mewna.catnip.entity.channel.TextChannel;
@@ -11,11 +12,10 @@ import com.mewna.catnip.entity.guild.GuildBan;
 import com.mewna.catnip.entity.guild.Member;
 import com.mewna.catnip.entity.guild.Role;
 import com.mewna.catnip.entity.misc.Emoji;
+import com.mewna.catnip.entity.misc.Emoji.CustomEmoji;
 import com.mewna.catnip.entity.user.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,47 +27,47 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings({"Duplicates", "unused", "WeakerAccess"})
 public final class FinderUtil {
-    public final static Pattern DISCORD_ID = Pattern.compile("\\d{1,20}"); // ID
-    public final static Pattern FULL_USER_REF = Pattern.compile("(\\S.{0,30}\\S)\\s*#(\\d{4})"); // $1 -> username, $2 -> discriminator
-    public final static Pattern USER_MENTION = Pattern.compile("<@!?(\\d{1,20})>"); // $1 -> ID
-    public final static Pattern CHANNEL_MENTION = Pattern.compile("<#(\\d{1,20})>"); // $1 -> ID
-    public final static Pattern ROLE_MENTION = Pattern.compile("<@&(\\d{1,20})>"); // $1 -> ID
-    public final static Pattern EMOTE_MENTION = Pattern.compile("<:(.{2,32}):(\\d{1,20})>");
+    public static final Pattern DISCORD_ID = Pattern.compile("\\d{1,20}"); // ID
+    public static final Pattern FULL_USER_REF = Pattern.compile("(\\S.{0,30}\\S)\\s*#(\\d{4})"); // $1 -> username, $2 -> discriminator
+    public static final Pattern USER_MENTION = Pattern.compile("<@!?(\\d{1,20})>"); // $1 -> ID
+    public static final Pattern CHANNEL_MENTION = Pattern.compile("<#(\\d{1,20})>"); // $1 -> ID
+    public static final Pattern ROLE_MENTION = Pattern.compile("<@&(\\d{1,20})>"); // $1 -> ID
+    public static final Pattern EMOTE_MENTION = Pattern.compile("<:(.{2,32}):(\\d{1,20})>");
 
-    public static Collection<User> findUsers(String query, Catnip catnip) {
-        Matcher userMention = USER_MENTION.matcher(query);
-        Matcher fullRefMatch = FULL_USER_REF.matcher(query);
+    public static Collection<User> findUsers(final String query, final Catnip catnip) {
+        final Matcher userMention = USER_MENTION.matcher(query);
+        final Matcher fullRefMatch = FULL_USER_REF.matcher(query);
 
         if(userMention.matches()) {
-            User user = catnip.cache().users().getById(userMention.group(1));
+            final User user = catnip.cache().users().getById(userMention.group(1));
 
             if(user != null) {
                 return Collections.singleton(user);
             }
         } else if(fullRefMatch.matches()) {
-            String lowerName = fullRefMatch.group(1).toLowerCase();
-            String discrim = fullRefMatch.group(2);
-            Collection<User> users = catnip.cache().users()
+            final String lowerName = fullRefMatch.group(1).toLowerCase();
+            final String discrim = fullRefMatch.group(2);
+            final Collection<User> users = catnip.cache().users()
                 .find(user -> user.username().toLowerCase().equals(lowerName) && user.discriminator().equals(discrim));
 
             if(!users.isEmpty()) {
                 return users;
             }
         } else if(DISCORD_ID.matcher(query).matches()) {
-            User user = catnip.cache().users().getById(query);
+            final User user = catnip.cache().users().getById(query);
 
             if(user != null) {
                 return Collections.singleton(user);
             }
         }
 
-        ArrayList<User> exact = new ArrayList<>();
-        ArrayList<User> wrongcase = new ArrayList<>();
-        ArrayList<User> startswith = new ArrayList<>();
-        ArrayList<User> contains = new ArrayList<>();
-        String lowerquery = query.toLowerCase();
+        final Collection<User> exact = new ArrayList<>();
+        final Collection<User> wrongcase = new ArrayList<>();
+        final Collection<User> startswith = new ArrayList<>();
+        final Collection<User> contains = new ArrayList<>();
+        final String lowerquery = query.toLowerCase();
         catnip.cache().users().forEach(user -> {
-            String name = user.username();
+            final String name = user.username();
 
             if(name.equals(query)) {
                 exact.add(user);
@@ -95,9 +95,9 @@ public final class FinderUtil {
         return Collections.unmodifiableCollection(contains);
     }
 
-    public static Collection<User> findBannedUsers(String query, Guild guild) {
+    public static Collection<User> findBannedUsers(String query, final Snowflake guild) {
 
-        Collection<User> bans = guild.catnip().rest().guild().getGuildBans(guild.id())
+        final Collection<User> bans = guild.catnip().rest().guild().getGuildBans(guild.id())
             .thenApply(u -> u.stream()
                 .map(GuildBan::user)
                 .collect(Collectors.toSet())
@@ -105,17 +105,17 @@ public final class FinderUtil {
 
 
         String discrim = null;
-        Matcher userMention = USER_MENTION.matcher(query);
+        final Matcher userMention = USER_MENTION.matcher(query);
 
         if(userMention.matches()) {
-            String id = userMention.group(1);
-            User user = guild.catnip().cache().users().getById(id);
+            final String id = userMention.group(1);
+            final User user = guild.catnip().cache().users().getById(id);
 
             if(user != null && bans.contains(user)) {
                 return Collections.singleton(user);
             }
 
-            for (User u : bans) {
+            for (final User u : bans) {
                 if(u.id().equals(id)) {
                     return Collections.singleton(u);
                 }
@@ -124,26 +124,26 @@ public final class FinderUtil {
             discrim = query.substring(query.length() - 4);
             query = query.substring(0, query.length() - 5).trim();
         } else if(DISCORD_ID.matcher(query).matches()) {
-            User user = guild.catnip().cache().users().getById(query);
+            final User user = guild.catnip().cache().users().getById(query);
 
             if(user != null && bans.contains(user)) {
                 return Collections.singleton(user);
             }
 
-            for (User u : bans) {
+            for (final User u : bans) {
                 if(u.id().equals(query)) {
                     return Collections.singleton(u);
                 }
             }
         }
 
-        ArrayList<User> exact = new ArrayList<>();
-        ArrayList<User> wrongcase = new ArrayList<>();
-        ArrayList<User> startswith = new ArrayList<>();
-        ArrayList<User> contains = new ArrayList<>();
+        final Collection<User> exact = new ArrayList<>();
+        final Collection<User> wrongcase = new ArrayList<>();
+        final Collection<User> startswith = new ArrayList<>();
+        final Collection<User> contains = new ArrayList<>();
 
-        String lowerQuery = query.toLowerCase();
-        for (User u : bans) {
+        final String lowerQuery = query.toLowerCase();
+        for (final User u : bans) {
             // ifa discrim is specified then we skip all users without it.
             if(discrim != null && !u.discriminator().equals(discrim)) {
                 continue;
@@ -175,20 +175,20 @@ public final class FinderUtil {
         return Collections.unmodifiableCollection(contains);
     }
 
-    public static Collection<Member> findMembers(String query, Guild guild) {
-        Matcher userMention = USER_MENTION.matcher(query);
-        Matcher fullRefMatch = FULL_USER_REF.matcher(query);
+    public static Collection<Member> findMembers(final String query, final Guild guild) {
+        final Matcher userMention = USER_MENTION.matcher(query);
+        final Matcher fullRefMatch = FULL_USER_REF.matcher(query);
 
         if(userMention.matches()) {
-            Member member = guild.members().getById(userMention.group(1));
+            final Member member = guild.members().getById(userMention.group(1));
 
             if(member != null) {
                 return Collections.singleton(member);
             }
         } else if(fullRefMatch.matches()) {
-            String lowerName = fullRefMatch.group(1).toLowerCase();
-            String discrim = fullRefMatch.group(2);
-            Collection<Member> members = guild.members()
+            final String lowerName = fullRefMatch.group(1).toLowerCase();
+            final String discrim = fullRefMatch.group(2);
+            final Collection<Member> members = guild.members()
                 .find(member -> member.user().username().toLowerCase().equals(lowerName)
                     && member.user().discriminator().equals(discrim));
 
@@ -196,22 +196,22 @@ public final class FinderUtil {
                 return members;
             }
         } else if(DISCORD_ID.matcher(query).matches()) {
-            Member member = guild.members().getById(query);
+            final Member member = guild.members().getById(query);
 
             if(member != null) {
                 return Collections.singleton(member);
             }
         }
 
-        ArrayList<Member> exact = new ArrayList<>();
-        ArrayList<Member> wrongcase = new ArrayList<>();
-        ArrayList<Member> startswith = new ArrayList<>();
-        ArrayList<Member> contains = new ArrayList<>();
+        final Collection<Member> exact = new ArrayList<>();
+        final Collection<Member> wrongcase = new ArrayList<>();
+        final Collection<Member> startswith = new ArrayList<>();
+        final Collection<Member> contains = new ArrayList<>();
 
-        String lowerquery = query.toLowerCase();
+        final String lowerquery = query.toLowerCase();
         guild.members().forEach(member -> {
-            String name = member.user().username();
-            String effName = member.effectiveName();
+            final String name = member.user().username();
+            final String effName = member.effectiveName();
 
             if(name.equals(query) || effName.equals(query)) {
                 exact.add(member);
@@ -239,63 +239,63 @@ public final class FinderUtil {
         return Collections.unmodifiableCollection(contains);
     }
 
-    public static Collection<GuildChannel> findChannels(String query, Catnip catnip) {
+    public static Collection<GuildChannel> findChannels(final String query, final Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.ANY, catnip.cache().channels());
     }
 
-    public static Collection<GuildChannel> findChannels(String query, Guild guild) {
+    public static Collection<GuildChannel> findChannels(final String query, final Guild guild) {
         return genericChannelSearch(query, ChannelFilter.ANY, guild.channels());
     }
 
-    public static Collection<TextChannel> findTextChannels(String query, Catnip catnip) {
+    public static Collection<TextChannel> findTextChannels(final String query, final Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.TEXT, catnip.cache().channels());
     }
 
-    public static Collection<TextChannel> findTextChannels(String query, Guild guild) {
+    public static Collection<TextChannel> findTextChannels(final String query, final Guild guild) {
         return genericChannelSearch(query, ChannelFilter.TEXT, guild.channels());
     }
 
-    public static Collection<VoiceChannel> findVoiceChannels(String query, Catnip catnip) {
+    public static Collection<VoiceChannel> findVoiceChannels(final String query, final Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.VOICE, catnip.cache().channels());
     }
 
-    public static Collection<VoiceChannel> findVoiceChannels(String query, Guild guild) {
+    public static Collection<VoiceChannel> findVoiceChannels(final String query, final Guild guild) {
         return genericChannelSearch(query, ChannelFilter.VOICE, guild.channels());
     }
 
-    public static Collection<Category> findCategories(String query, Catnip catnip) {
+    public static Collection<Category> findCategories(final String query, final Catnip catnip) {
         return genericChannelSearch(query, ChannelFilter.CATEGORY, catnip.cache().channels());
     }
 
-    public static Collection<Category> findCategories(String query, Guild guild) {
+    public static Collection<Category> findCategories(final String query, final Guild guild) {
         return genericChannelSearch(query, ChannelFilter.CATEGORY, guild.channels());
     }
 
-    public static Collection<Role> findRoles(String query, Guild guild) {
-        Matcher roleMention = ROLE_MENTION.matcher(query);
+    public static Collection<Role> findRoles(final String query, final Guild guild) {
+        final Matcher roleMention = ROLE_MENTION.matcher(query);
 
         if(roleMention.matches()) {
-            Role role = guild.roles().getById(roleMention.group(1));
+            final Role role = guild.roles().getById(roleMention.group(1));
 
             if(role != null && role.mentionable()) {
                 return Collections.singleton(role);
             }
         } else if(DISCORD_ID.matcher(query).matches()) {
-            Role role = guild.roles().getById(query);
+            final Role role = guild.roles().getById(query);
 
             if(role != null) {
                 return Collections.singleton(role);
             }
         }
 
-        ArrayList<Role> exact = new ArrayList<>();
-        ArrayList<Role> wrongcase = new ArrayList<>();
-        ArrayList<Role> startswith = new ArrayList<>();
-        ArrayList<Role> contains = new ArrayList<>();
+        final Collection<Role> exact = new ArrayList<>();
+        final Collection<Role> wrongcase = new ArrayList<>();
+        final Collection<Role> startswith = new ArrayList<>();
+        final Collection<Role> contains = new ArrayList<>();
 
-        String lowerquery = query.toLowerCase();
-        guild.roles().forEach((role) -> {
-            String name = role.name();
+        final String lowerquery = query.toLowerCase();
+        guild.roles().forEach(role -> {
+            final String name = role.name();
 
             if(name.equals(query)) {
                 exact.add(role);
@@ -323,19 +323,19 @@ public final class FinderUtil {
         return Collections.unmodifiableCollection(contains);
     }
 
-    public static Collection<Emoji> findEmojis(String query, Guild guild) {
+    public static Collection<Emoji> findEmojis(final String query, final Guild guild) {
         return genericEmojiSearch(query, guild.emojis());
     }
 
-    public static Collection<Emoji> findEmojis(String query, Catnip catnip) {
+    public static Collection<Emoji> findEmojis(final String query, final Catnip catnip) {
         return genericEmojiSearch(query, catnip.cache().emojis());
     }
 
-    private static <T extends GuildChannel> Collection<T> genericChannelSearch(String query, ChannelFilter<T> f, NamedCacheView<GuildChannel> cache) {
-        Matcher channelMention = CHANNEL_MENTION.matcher(query);
+    private static <T extends GuildChannel> Collection<T> genericChannelSearch(final String query, final ChannelFilter<T> f, final NamedCacheView<GuildChannel> cache) {
+        final Matcher channelMention = CHANNEL_MENTION.matcher(query);
 
         if(f.isMentionable() && channelMention.matches()) {
-            GuildChannel c = cache.getById(channelMention.group(1));
+            final GuildChannel c = cache.getById(channelMention.group(1));
 
             if(!f.canCast(c)) {
                 return null;
@@ -343,7 +343,7 @@ public final class FinderUtil {
 
             return Collections.singleton(f.cast(c));
         } else if(DISCORD_ID.matcher(query).matches()) {
-            GuildChannel c = cache.getById(query);
+            final GuildChannel c = cache.getById(query);
 
             if(!f.canCast(c)) {
                 return null;
@@ -352,19 +352,19 @@ public final class FinderUtil {
             return Collections.singleton(f.cast(c));
         }
 
-        ArrayList<T> exact = new ArrayList<>();
-        ArrayList<T> wrongcase = new ArrayList<>();
-        ArrayList<T> startswith = new ArrayList<>();
-        ArrayList<T> contains = new ArrayList<>();
+        final Collection<T> exact = new ArrayList<>();
+        final Collection<T> wrongcase = new ArrayList<>();
+        final Collection<T> startswith = new ArrayList<>();
+        final Collection<T> contains = new ArrayList<>();
 
-        String lowerquery = query.toLowerCase();
-        cache.forEach((c) -> {
+        final String lowerquery = query.toLowerCase();
+        cache.forEach(c -> {
             if(!f.canCast(c)) {
                 return;
             }
 
-            T tc = f.cast(c);
-            String name = tc.name();
+            final T tc = f.cast(c);
+            final String name = tc.name();
 
             if(name.equals(query)) {
                 exact.add(tc);
@@ -392,33 +392,33 @@ public final class FinderUtil {
         return Collections.unmodifiableCollection(contains);
     }
 
-    private static Collection<Emoji> genericEmojiSearch(String query, NamedCacheView<Emoji.CustomEmoji> cache) {
-        Matcher mentionMatcher = EMOTE_MENTION.matcher(query);
+    private static Collection<Emoji> genericEmojiSearch(final String query, final NamedCacheView<CustomEmoji> cache) {
+        final Matcher mentionMatcher = EMOTE_MENTION.matcher(query);
 
         if(DISCORD_ID.matcher(query).matches()) {
-            Emoji emoji = cache.getById(query);
+            final Emoji emoji = cache.getById(query);
 
             if(emoji != null) {
                 return Collections.singleton(emoji);
             }
         } else if(mentionMatcher.matches()) {
-            String emojiName = mentionMatcher.group(1);
-            String emojiId = mentionMatcher.group(2);
-            Emoji emoji = cache.getById(emojiId);
+            final String emojiName = mentionMatcher.group(1);
+            final String emojiId = mentionMatcher.group(2);
+            final Emoji emoji = cache.getById(emojiId);
 
             if(emoji != null && emoji.name().equals(emojiName)) {
                 return Collections.singleton(emoji);
             }
         }
 
-        ArrayList<Emoji> exact = new ArrayList<>();
-        ArrayList<Emoji> wrongcase = new ArrayList<>();
-        ArrayList<Emoji> startswith = new ArrayList<>();
-        ArrayList<Emoji> contains = new ArrayList<>();
+        final Collection<Emoji> exact = new ArrayList<>();
+        final Collection<Emoji> wrongcase = new ArrayList<>();
+        final Collection<Emoji> startswith = new ArrayList<>();
+        final Collection<Emoji> contains = new ArrayList<>();
 
-        String lowerquery = query.toLowerCase();
+        final String lowerquery = query.toLowerCase();
         cache.forEach(emoji -> {
-            String name = emoji.name();
+            final String name = emoji.name();
 
             if(name.equals(query)) {
                 exact.add(emoji);
@@ -461,12 +461,12 @@ public final class FinderUtil {
 
         ChannelFilter<GuildChannel> ANY = new ChannelFilter<GuildChannel>() {
             @Override
-            public boolean canCast(GuildChannel channel) {
+            public boolean canCast(final GuildChannel channel) {
                 return true;
             }
 
             @Override
-            public GuildChannel cast(GuildChannel channel) {
+            public GuildChannel cast(final GuildChannel channel) {
                 return channel;
             }
         };
@@ -478,36 +478,36 @@ public final class FinderUtil {
             }
 
             @Override
-            public boolean canCast(GuildChannel channel) {
+            public boolean canCast(final GuildChannel channel) {
                 return channel.isText();
             }
 
             @Override
-            public TextChannel cast(GuildChannel channel) {
+            public TextChannel cast(final GuildChannel channel) {
                 return channel.asTextChannel();
             }
         };
 
         ChannelFilter<VoiceChannel> VOICE = new ChannelFilter<VoiceChannel>() {
             @Override
-            public boolean canCast(GuildChannel channel) {
+            public boolean canCast(final GuildChannel channel) {
                 return channel.isVoice();
             }
 
             @Override
-            public VoiceChannel cast(GuildChannel channel) {
+            public VoiceChannel cast(final GuildChannel channel) {
                 return channel.asVoiceChannel();
             }
         };
 
         ChannelFilter<Category> CATEGORY = new ChannelFilter<Category>() {
             @Override
-            public boolean canCast(GuildChannel channel) {
+            public boolean canCast(final GuildChannel channel) {
                 return channel.isCategory();
             }
 
             @Override
-            public Category cast(GuildChannel channel) {
+            public Category cast(final GuildChannel channel) {
                 return channel.asCategory();
             }
         };
